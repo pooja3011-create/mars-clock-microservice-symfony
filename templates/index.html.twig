@@ -1,0 +1,186 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div id='loader1' class="mars-planet">
+            <img src='{{asset('img/mars.gif')}}'>
+        </div>
+        <h1 class="main-title">Billie's Task #2 </h1>
+        <h2> Calculate the Mars Sol Date (MSD) and the Martian Coordinated Time (MTC) By Earth Date/time</h2>
+        <hr>
+        <div id='loader' style='display: none;'>
+            <img src='{{ asset('img/loader.gif') }}' width='150px'>
+        </div>
+          <div class="col-sm-6" id="card-hide" style="display: none;">
+                <div class="card current-cal">
+                    <div class="card-header" id="currentTime"></div>
+                    <div class="card-body">
+                        <div class="without-com-latency">
+                            <h5 class="card-title mars-date">Mars Sol Date</h5>
+                            <h3 class="time-current-date" id="show_date_by_currentDate"></h3>
+                        </div>
+                        <div class="with-com-latency">
+                            <h5 class="card-title martian-time">Martian Coordinated Time</h5>
+                            <h3 class="time-current-date" id="show_time_by_currentDate"></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        
+        <div class="row">
+            <div class="col-8">
+                <div class="tab-content" id="nav-tabContent">
+                    <div class="tab-pane fade show active" id="list-fields" role="tabpanel" aria-labelledby="list-fields-list">
+                        <h3>Enter Earth DateTime (UTC):</h3>
+                        <p>Enter any date and time that you want to convert.</p>
+                        <div class="form">
+                            <form action="" method="post" id="convert">
+                                <div class="form-row">
+                                    <div class="col">
+                                        <input type="text" class="form-control datepicker" autocomplete="off" id="datetime" placeholder="Y-m-d H:i:s">
+                                    </div>
+                                    <input type="submit" class="btn btn-primary" value="Convert">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <hr>
+        <div class="row row-fuild">
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        Mars Sol Date (MSD) 
+                    </div>
+                    <div class="card-body">
+                        <div class="without-com-latency">
+                            <h5 class="card-title" id="withoutCom_latency_show_date">MSD will show up here</h5>
+                            <p id="">(Without Communication Latency)<p>
+                        </div>
+                        <div class="with-com-latency">
+                            <h5 class="card-title" id="withCom_latency_show_date">MSD will show up here</h5>
+                            <p id="">(With Communication Latency)<p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6">
+                <div class="card">
+                    <div class="card-header">
+                        Martian Coordinated Time (MTC)
+                    </div>
+                    <div class="card-body">
+                        <div class="without-com-latency">
+                            <h5 class="card-title" id="withoutCom_latency_show_time">MTC will show up here</h5>
+                            <p id="">(Without Communication Latency)<p>
+                        </div>
+                        <div class="with-com-latency">
+                            <h5 class="card-title" id="withCom_latency_show_time">MTC will show up here</h5>
+                            <p id="">(With Communication Latency)<p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {# @Ajax call for post earth date\time value  #}
+    <script>
+        $(document).ready(function () {
+            $("#convert").submit(function (event) {
+                event.preventDefault();
+                var datetime = $("#datetime").val();
+                {#var datetime = selectedDate.getUTCFullYear() + "-" + (parseInt(selectedDate.getUTCMonth()+1)) + "-" + (selectedDate.getUTCDate()) + " " + (selectedDate.getUTCHours()) + ":" + (selectedDate.getUTCMinutes()) + ":" + (selectedDate.getUTCSeconds());#}
+                $.ajax({
+                    url: "{{ app.request.baseUrl }}/api/v1/convert",
+                    data: {datetime: datetime},
+                    type: "post",
+                    success: function (response) {
+                        var JsonStringify = JSON.stringify(response);
+                        
+                        try {
+                            var obj = JSON.parse(JsonStringify);
+                            $("#withoutCom_latency_show_date").html(obj.data.withoutCom_latency_mar_sol_date);
+                            $("#withCom_latency_show_date").html(obj.data.withCom_latency_mar_sol_date);
+                            $("#withoutCom_latency_show_time").html(obj.data.withoutCom_latency_martian_coordinated_time);
+                            $("#withCom_latency_show_time").html(obj.data.withCom_latency_martian_coordinated_time);
+
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+        
+        {# @Ajax call atomatically calculate (MSD) and (MTC) by current earth date #}
+
+        $(document).ready(function () {
+            $("#loader").show();
+            {# it will always return 2 digit numbers even if the month or day is less than 10 #}
+            function d2(n) {
+                return n < 10 ? '0'+ n : n;
+            }	
+            
+            function updateTime() {
+                var CurrentDateUTCtime = new Date().toUTCString();
+                var today = new Date();
+                var datetime = today.getUTCFullYear() + "-" + d2(parseInt(today.getUTCMonth()+1)) + "-" + d2(today.getUTCDate()) + " " + d2(today.getUTCHours()) + ":" + d2(today.getUTCMinutes()) + ":" + d2(today.getUTCSeconds());
+                $('#currentTime').html(CurrentDateUTCtime);
+                
+                $.ajax({
+                    url: "{{ app.request.baseUrl }}/api/v1/convert",
+                    data: {datetime: datetime},
+                    type: "post",
+                    success: function (response) {
+                        var JsonStringify = JSON.stringify(response);
+                        try {
+                            var obj = JSON.parse(JsonStringify);
+                            $("#show_date_by_currentDate").html(obj.data.withoutCom_latency_mar_sol_date);
+                            $("#show_time_by_currentDate").html(obj.data.withoutCom_latency_martian_coordinated_time);
+                            $("#card-hide").css("display", "block");
+                            $('#loader').hide();
+                            
+                        } catch (ex) {
+                            console.error(ex);
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            }
+            $(function () {
+                // interval function to update after second
+                var timer = setInterval(function () {
+                    updateTime();
+                }, 1000);
+            });
+        });
+
+     $(".datepicker").datetimepicker({
+            format: "yyyy-mm-dd hh:ii:ss",
+            autoclose: true,
+            todayBtn: true,
+            pickerPosition: "top-right",
+        });
+    </script>
+{% endblock %}
+
+
+
+
+
+
+
+
+

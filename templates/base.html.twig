@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %} Mars Clock Converter{% endblock %}</title>
+        {% block stylesheets %}        
+            <!-- Date Range Picker -->
+            <!-- Bootstrap CSS -->            
+            <link rel="stylesheet" href="{{asset('css/bootstrap-datetimepicker.min.css')}}">
+            <link rel="stylesheet" href="{{asset('css/bootstrap.css')}}">
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}{% endblock %}
+        {% block javascripts %}
+            <script src="{{asset('js/jquery.min.js')}}"></script>
+            <script src="{{asset('js/bootstrap.min.js')}}"></script>
+            <script src="{{asset('js/bootstrap-datetimepicker.js')}}"></script>
+        {% endblock %}
+    </body>
+</html>
