@@ -1,2 +1,4 @@
-# mars-clock
-A microservice calculating the Mars Sol Date (MSD) and the Martian Coordinated Time (MTC) based on the time on Earth in UTC
+This application is an HTTP based microservice written on PHP that receives
+the Earth (UTC) timestamp in seconds as an input and returns two values:
+* Mars Sol Date (MSD)
+* Martian Coordinated Time (MTC)
