@@ -3,6 +3,8 @@ the Earth (UTC) timestamp in seconds as an input and returns two values:
 * Mars Sol Date (MSD)
 * Martian Coordinated Time (MTC)
 
+![Screenshot](output.jpg)
+
 ### Installation
 Add microservice hostname to `/etc/hosts`
 ```
